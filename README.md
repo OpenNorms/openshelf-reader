@@ -47,7 +47,8 @@ project.yml              XcodeGen spec for the app target
 
 `ReaderCore` depends only on Foundation. The app talks to git only
 through ReaderCore's `GitSyncEngine` protocol; the libgit2 adapter
-(`App/LibGit2SyncEngine.swift`, via SwiftGit2) is the single
+(`App/LibGit2SyncEngine.swift`, against the libgit2 C API via the
+SwiftPM build at github.com/ibrahimcetin/libgit2) is the single
 implementation.
 
 ## Verification status
@@ -58,12 +59,9 @@ implementation.
   automotive awesome KBs (312 / 287 pages, spec 1.4), the biz KB
   (50 pages), and the awesome-kb registry (spec 0.1) — plus a live
   two-KB composition whose rendered pages contain no broken links.
-- **The app layer was written without a Mac in the loop and has not
-  been compiled.** Expect the first Xcode build to ask for fixes,
-  concentrated in `App/LibGit2SyncEngine.swift` (SwiftGit2 call
-  signatures — the seam is deliberate, so any fix stays in that file).
-  If SwiftGit2 does not build under a current Xcode, replace that one
-  adapter (e.g. a libgit2 XCFramework binding); nothing else changes.
+- **The app compiles** for iOS (Xcode 27.2, `generic/platform=iOS`).
+  It has not yet been run on a device or simulator, so clone / pull /
+  token auth are unverified at runtime.
 
 ## Building
 

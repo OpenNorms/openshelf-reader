@@ -112,7 +112,7 @@ final class KBStore: ObservableObject {
             lastError = "That repository is already in the library."
             return
         }
-        var entry = LibraryKB(remoteURL: trimmed, branch: branch,
+        let entry = LibraryKB(remoteURL: trimmed, branch: branch,
                               cacheName: cacheName)
         library.kbs.append(entry)
         saveLibrary()

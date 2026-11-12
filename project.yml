@@ -6,13 +6,13 @@ options:
   createIntermediateGroups: true
 
 # ReaderCore is the Swift package in this same repository (Package.swift);
-# SwiftGit2 provides the libgit2 binding behind the GitSyncEngine seam.
+# libgit2 (SwiftPM build) sits behind the GitSyncEngine seam.
 packages:
   ReaderCorePkg:
     path: .
-  SwiftGit2:
-    url: https://github.com/SwiftGit2/SwiftGit2
-    from: 0.10.0
+  libgit2:
+    url: https://github.com/ibrahimcetin/libgit2
+    exactVersion: 1.9.2
 
 targets:
   OpenShelfReader:
@@ -30,7 +30,7 @@ targets:
     dependencies:
       - package: ReaderCorePkg
         product: ReaderCore
-      - package: SwiftGit2
+      - package: libgit2
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.opennorms.openshelf-reader
