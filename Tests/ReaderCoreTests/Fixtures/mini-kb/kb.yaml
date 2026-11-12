@@ -1,0 +1,13 @@
+openshelf: '1.7'
+id: mini-kb
+uid: 11111111-2222-3333-4444-555555555555
+title: Mini KB
+description: >
+  A small fixture knowledge base
+  for reader tests.
+visibility: private
+maintainers: [hexsecs, BenGardiner]
+layout:
+  pages: wiki
+  index: index.md
+  log: log.md

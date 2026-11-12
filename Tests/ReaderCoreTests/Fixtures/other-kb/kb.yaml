@@ -1,0 +1,17 @@
+openshelf: "1.4"
+id: other-kb
+title: Other KB
+description: A second fixture KB in the awesome profile shape.
+profile: awesome
+version: "2026.11.01"
+license: CC0-1.0
+layout:
+  pages: wiki
+  sources: raw
+depends:
+  - mini-kb
+x-ingest:
+  source_list: awesome-other
+  mode: generated
+  nested:
+    depth: summary

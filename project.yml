@@ -1,0 +1,38 @@
+name: OpenShelfReader
+options:
+  bundleIdPrefix: org.opennorms
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+# ReaderCore is the Swift package in this same repository (Package.swift);
+# SwiftGit2 provides the libgit2 binding behind the GitSyncEngine seam.
+packages:
+  ReaderCorePkg:
+    path: .
+  SwiftGit2:
+    url: https://github.com/SwiftGit2/SwiftGit2
+    from: 0.10.0
+
+targets:
+  OpenShelfReader:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: OpenShelf Reader
+        UILaunchStoryboardName: ""
+        BGTaskSchedulerPermittedIdentifiers:
+          - org.opennorms.openshelf-reader.refresh
+    dependencies:
+      - package: ReaderCorePkg
+        product: ReaderCore
+      - package: SwiftGit2
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.opennorms.openshelf-reader
+        SWIFT_VERSION: "5.9"
+        TARGETED_DEVICE_FAMILY: "1,2"
