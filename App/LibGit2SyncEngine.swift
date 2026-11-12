@@ -144,6 +144,10 @@ private let credentialCallback: git_credential_acquire_cb = { out, _, _, allowed
     }
     let state = Unmanaged<CredentialState>.fromOpaque(payload).takeUnretainedValue()
     state.attempts += 1
-    guard state.attempts <= 1 else { return GIT_EAUTH.rawValue }
+    guard state.attempts <= 1 else {
+        git_error_set_str(Int32(GIT_ERROR_HTTP.rawValue),
+                          "authentication failed: the access token was rejected")
+        return GIT_EAUTH.rawValue
+    }
     return git_credential_userpass_plaintext_new(out, "x-access-token", state.token)
 }
