@@ -31,6 +31,9 @@ targets:
       - package: ReaderCorePkg
         product: ReaderCore
       - package: libgit2
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.opennorms.openshelf-reader

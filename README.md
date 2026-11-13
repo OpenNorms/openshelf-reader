@@ -75,9 +75,25 @@ The iOS app (on a Mac):
 
 ```
 brew install xcodegen
+cp Config/Signing.local.xcconfig.example Config/Signing.local.xcconfig
+#   ...set DEVELOPMENT_TEAM in it (needed for device builds only)
 xcodegen generate
 open OpenShelfReader.xcodeproj
 ```
+
+Your team ID lives only in `Config/Signing.local.xcconfig`, which is
+gitignored.
+
+Or use the Makefile:
+
+```
+make test      # engine tests
+make sim       # build + run on an iOS simulator
+make deploy    # build + install + launch on your iPhone (USB or Wi-Fi)
+```
+
+`make deploy` uses the first paired, connected iPhone; pin a specific
+device or simulator in `local.mk` (copy `local.mk.example`, gitignored).
 
 ## Design notes
 

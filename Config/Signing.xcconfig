@@ -1,0 +1,10 @@
+// Signing for the OpenShelfReader app target (wired up in project.yml).
+//
+// Your Apple developer team ID is personal and stays out of the repo:
+// copy Signing.local.xcconfig.example to Signing.local.xcconfig (gitignored)
+// and set DEVELOPMENT_TEAM there. Without it the app still builds for the
+// simulator; device builds ask for a team.
+
+CODE_SIGN_STYLE = Automatic
+
+#include? "Signing.local.xcconfig"

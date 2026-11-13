@@ -4,3 +4,6 @@ xcuserdata/
 DerivedData/
 .DS_Store
 App/Info.plist
+Config/Signing.local.xcconfig
+local.mk
+build/

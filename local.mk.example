@@ -1,0 +1,4 @@
+# Copy to local.mk (gitignored) to pin your own device/simulator.
+# Get your device id with: make device-id   (or: xcrun devicectl list devices)
+# DEVICE   := 00000000-0000000000000000
+# SIM_NAME := iPhone 18 Pro
