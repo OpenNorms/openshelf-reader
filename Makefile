@@ -8,8 +8,8 @@
 # Nothing personal lives in this file. Signing (your team ID) comes from
 # Config/Signing.local.xcconfig; device and simulator choices can go in
 # local.mk (both gitignored; see local.mk.example). With no DEVICE set,
-# `make deploy` picks the first paired iPhone/iPad that is connected
-# (USB or Wi-Fi).
+# `make deploy` picks the first paired iPhone/iPad, over USB or Wi-Fi
+# (already-connected ones first).
 
 -include local.mk
 
@@ -67,7 +67,8 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # Sets shell var DEVICE: $(DEVICE) from local.mk / command line, else the
-# first paired, connected physical iOS device.
+# first paired physical iOS device (already-connected ones first;
+# devicectl opens the tunnel on demand).
 define resolve_device
 DEVICE="$(DEVICE)"; \
 if [ -z "$$DEVICE" ]; then \
@@ -75,11 +76,12 @@ if [ -z "$$DEVICE" ]; then \
   xcrun devicectl list devices --json-output "$$J" >/dev/null 2>&1; \
   DEVICE=$$(python3 -c 'import json,sys; \
     d=json.load(open(sys.argv[1]))["result"]["devices"]; \
-    m=[x["hardwareProperties"]["udid"] for x in d \
+    p=[x for x in d \
        if x["hardwareProperties"].get("reality")=="physical" \
        and x["hardwareProperties"].get("platform")=="iOS" \
-       and x["connectionProperties"].get("pairingState")=="paired" \
-       and x["connectionProperties"].get("tunnelState")=="connected"]; \
+       and x["connectionProperties"].get("pairingState")=="paired"]; \
+    p.sort(key=lambda x: x["connectionProperties"].get("tunnelState")!="connected"); \
+    m=[x["hardwareProperties"]["udid"] for x in p]; \
     print(m[0] if m else "")' "$$J"); \
   rm -f "$$J"; \
 fi; \

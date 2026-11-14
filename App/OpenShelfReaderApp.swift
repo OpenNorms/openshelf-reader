@@ -39,6 +39,8 @@ struct OpenShelfReaderApp: App {
         WindowGroup {
             LibraryView()
                 .environmentObject(store)
+                .environment(\.typeface, store.library.typeface)
+                .preferredColorScheme(store.preferredScheme)
                 .onAppear { Self.scheduleRefresh() }
         }
     }

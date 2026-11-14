@@ -92,7 +92,7 @@ make sim       # build + run on an iOS simulator
 make deploy    # build + install + launch on your iPhone (USB or Wi-Fi)
 ```
 
-`make deploy` uses the first paired, connected iPhone; pin a specific
+`make deploy` uses the first paired iPhone (USB or Wi-Fi); pin a specific
 device or simulator in `local.mk` (copy `local.mk.example`, gitignored).
 
 ## Design notes

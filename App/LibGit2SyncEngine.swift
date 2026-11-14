@@ -21,13 +21,14 @@ final class LibGit2SyncEngine: GitSyncEngine {
     }
 
     func cloneRepository(url: URL, branch: String?, to directory: URL,
-                         token: String?) throws -> String {
+                         token: String?,
+                         progress: (@Sendable (Double) -> Void)?) throws -> String {
         var options = git_clone_options()
         try check(git_clone_options_init(&options,
                                          UInt32(GIT_CLONE_OPTIONS_VERSION)))
         options.checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE.rawValue
 
-        return try withCredentials(token) { callbacks in
+        return try withCredentials(token, progress: progress) { callbacks in
             options.fetch_opts.callbacks = callbacks
             var repo: OpaquePointer?
             let status: Int32
@@ -47,7 +48,8 @@ final class LibGit2SyncEngine: GitSyncEngine {
         }
     }
 
-    func pullRepository(at directory: URL, token: String?) throws -> String {
+    func pullRepository(at directory: URL, token: String?,
+                        progress: (@Sendable (Double) -> Void)?) throws -> String {
         var repo: OpaquePointer?
         try check(git_repository_open(&repo, directory.path))
         defer { git_repository_free(repo) }
@@ -60,7 +62,7 @@ final class LibGit2SyncEngine: GitSyncEngine {
         var fetchOptions = git_fetch_options()
         try check(git_fetch_options_init(&fetchOptions,
                                          UInt32(GIT_FETCH_OPTIONS_VERSION)))
-        try withCredentials(token) { callbacks in
+        try withCredentials(token, progress: progress) { callbacks in
             fetchOptions.callbacks = callbacks
             try check(git_remote_fetch(remote, nil, &fetchOptions, nil))
         }
@@ -97,17 +99,20 @@ final class LibGit2SyncEngine: GitSyncEngine {
     }
 
     /// Runs `body` with remote callbacks that answer HTTPS auth with the
-    /// personal access token (if any). The token never touches disk.
+    /// personal access token (if any) and report transfer progress. The
+    /// token never touches disk.
     private func withCredentials<T>(_ token: String?,
+                                    progress: (@Sendable (Double) -> Void)?,
                                     _ body: (git_remote_callbacks) throws -> T) throws -> T {
         var callbacks = git_remote_callbacks()
         try check(git_remote_init_callbacks(&callbacks,
                                             UInt32(GIT_REMOTE_CALLBACKS_VERSION)))
-        guard let token else { return try body(callbacks) }
+        guard token != nil || progress != nil else { return try body(callbacks) }
 
-        let state = CredentialState(token: token)
+        let state = CallbackState(token: token, progress: progress)
         return try withExtendedLifetime(state) {
-            callbacks.credentials = credentialCallback
+            if token != nil { callbacks.credentials = credentialCallback }
+            if progress != nil { callbacks.transfer_progress = transferProgressCallback }
             callbacks.payload = Unmanaged.passUnretained(state).toOpaque()
             return try body(callbacks)
         }
@@ -129,10 +134,23 @@ private func check(_ status: Int32) throws {
     throw LibGit2Error(code: status, message: message)
 }
 
-private final class CredentialState {
-    let token: String
+private final class CallbackState {
+    let token: String?
+    let progress: (@Sendable (Double) -> Void)?
     var attempts = 0
-    init(token: String) { self.token = token }
+    init(token: String?, progress: (@Sendable (Double) -> Void)?) {
+        self.token = token
+        self.progress = progress
+    }
+}
+
+/// Object-transfer progress (received / total objects), 0...1.
+private let transferProgressCallback: git_indexer_progress_cb = { stats, payload in
+    guard let stats, let payload else { return 0 }
+    let state = Unmanaged<CallbackState>.fromOpaque(payload).takeUnretainedValue()
+    let total = Double(stats.pointee.total_objects)
+    if total > 0 { state.progress?(Double(stats.pointee.received_objects) / total) }
+    return 0
 }
 
 /// HTTPS userpass credentials from the token. Gives up after one
@@ -142,12 +160,13 @@ private let credentialCallback: git_credential_acquire_cb = { out, _, _, allowed
           allowed & GIT_CREDENTIAL_USERPASS_PLAINTEXT.rawValue != 0 else {
         return GIT_PASSTHROUGH.rawValue
     }
-    let state = Unmanaged<CredentialState>.fromOpaque(payload).takeUnretainedValue()
+    let state = Unmanaged<CallbackState>.fromOpaque(payload).takeUnretainedValue()
+    guard let token = state.token else { return GIT_PASSTHROUGH.rawValue }
     state.attempts += 1
     guard state.attempts <= 1 else {
         git_error_set_str(Int32(GIT_ERROR_HTTP.rawValue),
                           "authentication failed: the access token was rejected")
         return GIT_EAUTH.rawValue
     }
-    return git_credential_userpass_plaintext_new(out, "x-access-token", state.token)
+    return git_credential_userpass_plaintext_new(out, "x-access-token", token)
 }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512">
+  <title>OpenShelf Reader app icon</title>
+  <rect width="512" height="512" fill="#0b0e13"/>
+  <rect x="124" y="150" width="84" height="234" rx="10" fill="#1f6b60"/>
+  <rect x="124" y="196" width="84" height="14" fill="#14463f"/>
+  <rect x="220" y="196" width="68" height="188" rx="10" fill="#8a3a32"/>
+  <rect x="220" y="236" width="68" height="12" fill="#542420"/>
+  <g transform="rotate(-14 335 384)">
+    <rect x="335" y="176" width="64" height="208" rx="10" fill="#e8a33d"/>
+    <rect x="335" y="218" width="64" height="12" fill="#b87a22"/>
+  </g>
+  <rect x="92" y="384" width="328" height="16" rx="8" fill="#ece6d9"/>
+</svg>
